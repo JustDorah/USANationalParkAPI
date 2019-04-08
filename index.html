@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>USA National Park API</title>
+  <link rel="stylesheet" href="index.css">
+</head>
+
+<body>
+	<header>
+    <h1>USA National Parks</h1>
+  </header>
+	<main>
+    <div class="container">
+      <h2>Find a national park by state</h2>
+
+      <form id="js-form">
+          <label for="search-state">Enter State Name</label>
+          <input type="text" name="search-state" id="js-search-state" required>
+
+          <label for="numEntered">Results</label>
+          <input type="number" name="numEntered" id="js-numEntered" min="1" max="50" value="1">
+
+            <input type="submit" value="Search">
+        </form>
+
+        <p id="js-error-message" class="error-message"></p>
+        <section id="results" class="hidden">
+          <h3>Search Results</h3>
+          <ul id="js-results-list">
+          </ul>
+        </section>
+
+    </div>
+	</main>
+	<script src="https://code.jquery.com/jquery-3.3.1.js" integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60=" crossorigin="anonymous"></script>
+<script src="states.js"></script>
+<script src="index.js"></script>
+</body>
+
+</html>
