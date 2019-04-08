@@ -99,9 +99,8 @@ function createQueryString(state, numResults) {
 function getStateCode(stateEntered) {
 
     function getState(stateEntered) {
-        return states.filter(state => state.name.toLowerCase() === stateEntered.toLowerCase())[0];
+        return states.filter(state => state.name.toLowerCase() === stateEntered.toLowerCase() || state.abbrev.toLowerCase() === stateEntered.toLowerCase())[0];
     };
-
     const results = getState(stateEntered);
     //console.log(results, 'results')
        
