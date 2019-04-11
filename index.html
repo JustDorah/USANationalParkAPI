@@ -18,12 +18,17 @@
       <h2>Find a national park by state</h2>
 
       <form id="js-form">
-          <label for="search-state">Enter State Name:</label>
-          <input type="text" name="search-state" id="js-search-state" required>
+          <label for="js-search-state">Select one or more states. <br> Hold the control or command button down to select multiple options</label>
           <br>
-          <label for="numEntered">Number of Parks:</label>
+          <select id="js-search-state" size="10" multiple required>
+            </select>
+         
+          <br>
+          <br>
+          <label for="numEntered">Number of results displayed?</label>
+          <br>
           <input type="number" name="numEntered" id="js-numEntered" min="1" max="50" value="10">
-
+          
             <input type="submit" value="Search">
         </form>
 

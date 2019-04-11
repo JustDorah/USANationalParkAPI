@@ -1,71 +1,47 @@
 'use strict';
+
 // Base  URL with endpoint /parks
 const npsURL = 'https://developer.nps.gov/api/v1/parks';
-
 //API key
-const apiKey = 'w2zeUfQTPXBoIT154Rrc0JmxIpdIMAbXPlbpgkIc';
+const apiKey ='w2zeUfQTPXBoIT154Rrc0JmxIpdIMAbXPlbpgkIc';
 
-//display results
-function displayResults(physAddress, info) {
-   
-
-    $('#js-results-list').append(
-        `<li>
-        <h2>${info.fullName}</h2>
-        <p>${info.description} <a href="${info.url}" target="_blank">${info.url}</a></p>
-       
-        <a href="https://google.com/maps/search/${info.fullName}" target="_blank">${physAddress.line1}<br>${physAddress.line2}, ${physAddress.city}, ${physAddress.stateCode} ${physAddress.postalCode}</a>
-        </li>`
-    );
-    $('#results').removeClass('hidden');
+function displayStateOptions(){
+  let stateSelected = Object.keys(states);
+  stateSelected.forEach(stateCode => {
+    $('#js-search-state').append(
+      `<option value="${stateCode}">${states[stateCode]}</option>`
+    )    
+  });  
 }
 
-//create a clean usable address object
-function cleanPhysicalAddress(messyPhysAddress, info) {
-    console.log('clean is working');
-    let physAddress = {};
+function getSubmittedInfo(){
+   $('form').submit(event=> {
+    event.preventDefault();
+    const stateSubmitted = $('#js-search-state').val(); 
+    const numResults =$('#js-numEntered').val();
+    //console.log(stateSubmitted,numResults, 'state number of display submitted');
+  createQueryString(stateSubmitted, numResults);
 
-    //remove the falsy key/values in the address object
-    const removeEmptyAdress = (messyPhysAddress) => {
-        const cleanPhysAddress = {};
-        Object.keys(messyPhysAddress).forEach(key => {
-            if (messyPhysAddress[key] && typeof messyPhysAddress[key] === 'object') removeEmptyAdress(messyPhysAddress[key]);
-            else if (messyPhysAddress[key] == undefined) delete messyPhysAddress[key];
-            else if (messyPhysAddress[key]) cleanPhysAddress[key] = messyPhysAddress[key];
-        });
-        return cleanPhysAddress;
-    };
-    console.log(removeEmptyAdress(messyPhysAddress).line1, 'cleaned up ')
-
-    physAddress = removeEmptyAdress(messyPhysAddress);
-    console.log('got it !!!!!', physAddress, 'got it !!!!!')
-    
-    //return physAddress;
-    displayResults(physAddress, info);
+  });
 }
 
+function createQueryString(stateSubmitted, numResults){
+  const params = {
+    api_key: apiKey,
+    stateCode: stateSubmitted,
+    limit: numResults,
+    start: 0,
+    fields: 'addresses'
+  };
+  const queryString = `stateCode=${stateSubmitted}&limit=${numResults}&start=0&fields=addresses&api_key=${apiKey}`
+  //console.log(queryString);
 
-function getPhysicalAddress(json) {
-    const holdJsonInfo = [];
-    $('#js-results-list').empty();
-    json.data.forEach(element => {
-        console.log(element.addresses, '!!!addresses')
-        const addresses = element.addresses;
-        console.log(addresses, 'address captured!');
-
-
-        const messyPhysAddress = addresses.filter(address => address.type === 'Physical')[0];
-        console.log(messyPhysAddress, 'physicalAddress!!!!!');
-
-        //console.log(json);
-        cleanPhysicalAddress(messyPhysAddress, {fullName: element.fullName, url: element.url, description: element.description});
-    });
-
+findParks(queryString);
 }
 
 function findParks(queryString) {
     const url = npsURL + '?' + queryString;
-    console.log('the url is', url);
+    //console.log('the url is', url);
 
     fetch(url)
         .then(response => {
@@ -80,58 +56,67 @@ function findParks(queryString) {
             console.log(err.message)
         });
 }
+function getPhysicalAddress(json) {
+ console.log('getPhysicalAddress is working');
+    $('#js-results-list').empty();
+    json.data.forEach(element => {
+        console.log(element.addresses, '!!!addresses')
+        const addresses = element.addresses;
+        //console.log(addresses, 'address captured!');
 
-function createQueryString(state, numResults) {
-    const params = {
-        api_key: apiKey,
-        stateCode: state,
-        limit: numResults,
-        start: 0,
-        fields: 'addresses'
-    };
-    const queryString = `stateCode=${state}&limit=${numResults}&start=0&fields=addresses&api_key=${apiKey}`
-    //console.log(queryString);
 
-    findParks(queryString);
-}
+        const messyPhysAddress = addresses.filter(address => address.type === 'Physical')[0];
+       // console.log(messyPhysAddress, 'physicalAddress!!!!!');
 
-//convert user's entry into the acceptable state code
-function getStateCode(stateEntered) {
-
-    function getState(stateEntered) {
-        return states.filter(state => state.name.toLowerCase() === stateEntered.toLowerCase() || state.abbrev.toLowerCase() === stateEntered.toLowerCase())[0];
-    };
-    const results = getState(stateEntered);
-    //console.log(results, 'results')
-       
-    //console.log(results.abbrev, 'stateCode')
-    return results.abbrev;
-}
-
-function searchInitiated() {
-    $('form').submit(event => {
-        event.preventDefault();
-        const stateEntered = $('#js-search-state').val();
-        const numResults = $('#js-numEntered').val();
-        //console.log(numResults, 'number entered');
-       
-        getStateCode(stateEntered);
-        //returns stateCode here
-        
-        const stateCode = getStateCode(stateEntered);
-        //console.log(stateCode, 'stateCode found');
-
-        //test to see if we got our state
-        if (stateCode) {
-            console.log('we should render our state code back on the page');
-        } else {
-            console.log('we should render something on the page to show we did not get a state code');
-        };
-    
-        createQueryString(stateCode, numResults);      
+        //console.log(json);
+        cleanPhysicalAddress(messyPhysAddress, {fullName: element.fullName, url: element.url, description: element.description});
     });
 }
+function cleanPhysicalAddress(messyPhysAddress, info) {
+    console.log('clean is working');
+    let physAddress = {};
 
+    //remove the falsy key/values in the address object
+    const removeEmptyAdress = (messyPhysAddress) => {
+        const cleanPhysAddress = {};
+        Object.keys(messyPhysAddress).forEach(key => {
+            if (messyPhysAddress[key] && typeof messyPhysAddress[key] === 'object') removeEmptyAdress(messyPhysAddress[key]);
+            else if (messyPhysAddress[key] == undefined) delete messyPhysAddress[key];
+            else if (messyPhysAddress[key]) cleanPhysAddress[key] = messyPhysAddress[key];
+        });
+        return cleanPhysAddress;
+    };
+    //console.log(removeEmptyAdress(messyPhysAddress).line1, 'cleaned up ')
 
+    physAddress = removeEmptyAdress(messyPhysAddress);
+    //console.log('got it !!!!!', physAddress, 'got it !!!!!')
+    
+    //return physAddress;
+    displayResults(physAddress, info);
+}
+//display results
+function displayResults(physAddress, info) {
+   
+
+    $('#js-results-list').append(
+        `<li>
+        <h2>${info.fullName}</h2>
+        <p>${info.description}<br><br>
+        URL:<a href="${info.url}" target="_blank">${info.url}</a></p>
+        <p>Address:<br>
+        <a href="https://google.com/maps/search/${info.fullName}" target="_blank">${physAddress.line1}<br>${physAddress.line2}, ${physAddress.city}, ${physAddress.stateCode} ${physAddress.postalCode}</a></p>
+        </li>`
+    );
+    $('#results').removeClass('hidden');
+}
+
+function searchInitiated(){
+  console.log('Loaded!...');
+  //show the states to be selected
+  displayStateOptions();
+
+  //listen || get the sbumitted information
+  getSubmittedInfo();
+}
 
 $(searchInitiated);

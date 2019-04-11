@@ -40,3 +40,7 @@
   .hidden {
     display: none;
   }
+
+  form{
+    max-width: 300px;
+  }
